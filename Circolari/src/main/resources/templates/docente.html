@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circolari</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4caf50;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            border: 2px solid #4caf50;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-item {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .circolare-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        
+        .change-account-button {
+            position: absolute;
+            right: 20px;
+            top: 50px; /* Adjust this value as needed */
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	
+	<button class="change-account-button" onclick="window.location.href='http://localhost:8080/'">Cambia Account</button>
+	
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.grid').html('');
+            $.ajax({
+                url: '/personale_presidenza/api/circolare',
+                method: 'get',
+                success: function (data) {
+
+                    for (var i = data.length - 1; i >= 0; i--) {
+						if (data[i].tipo === 'docente') {
+	                        var circolareBox = $('<div class="grid-item circolare-box"></div>');
+	                        circolareBox.append('<p>' + data[i].titolo + '</p><p>' + data[i].descrizione + '</p><p>' + data[i].data + '</p><p>' + data[i].tipo + '</p>');
+	                        $('.grid').append(circolareBox);
+	                    }
+                    }
+                }
+            });
+        })
+
+
+    </script>
+
+    <header>
+        <h1>Circolari</h1>
+    </header>
+    <main>
+        <div class="grid"></div>
+    </main>
+</body>
+</html>

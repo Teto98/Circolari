@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circolari</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4caf50;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            border: 2px solid #4caf50;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #caricaCircolareBtn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #2196f3;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-item {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .circolare-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .btn-modifica,
+        .btn-elimina {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .change-account-button {
+            position: absolute;
+            right: 20px;
+            top: 50px; /* Adjust this value as needed */
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<button class="change-account-button" onclick="window.location.href='http://localhost:8080/'">Cambia Account</button>
+	 
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            caricaCircolare();
+
+            $("#caricaCircolareBtn").on('click', function () {
+                var titolo = prompt("Inserisci il titolo della circolare");
+                var giorno = prompt("Inserisci la data della circolare");
+                var descrizione = prompt("Inserisci la descrizione della circolare");
+                var tipo = prompt("Inserisci il tipo dell'utente");
+
+                var circolare = {
+                    titolo: titolo,
+                    data: giorno,
+                    descrizione: descrizione,
+                    tipo: tipo
+                };
+
+                $.ajax({
+                    url: '/personale_presidenza/api/circolare',
+                    method: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(circolare),
+                    success: function (data) {
+                        caricaCircolare();
+                    },
+
+                });
+            });
+        });
+
+            
+        $(document).on('click', '#btn-modifica', function () {
+            var id = $(this).data('id');
+            var titolo = $(this).data('titolo');
+            var giorno = $(this).data('giorno');
+            var descrizione = $(this).data('descrizione');
+            var tipo = $(this).data('tipo');
+
+            var nuovoTitolo = prompt('Modifica il titolo', titolo);
+            var nuovoGiorno = prompt('Modifica il giorno', giorno);
+            var nuovaDescrizione = prompt('Modifica la descrizione', descrizione);
+            var nuovoTipo = prompt('Modifica il tipo', tipo);
+
+            var circolare = {
+                titolo: nuovoTitolo,
+                data: nuovoGiorno,
+                descrizione: nuovaDescrizione,
+                tipo: nuovoTipo
+            };
+
+            $.ajax({
+                url: '/personale_presidenza/api/circolare/' + id,
+                method: 'put',
+                contentType: 'application/json',
+                data: JSON.stringify(circolare),
+                success: function (data) {
+                    caricaCircolare();
+                },
+            });
+        });
+        
+        $(document).on('click', '#btn-elimina', function() {
+						
+						var elementToRemove = $(this).parent();
+						var id = $(this).data('id');
+						
+						$.ajax({
+							url : '/personale_presidenza/api/circolare/' + id,
+							method : 'delete',
+							success : function(data) {
+								
+								elementToRemove.remove();
+									
+							}
+						});            		
+					});
+
+        function caricaCircolare() {
+            $('.grid').html('');
+            $.ajax({
+                url: '/personale_presidenza/api/circolare',
+                method: 'get',
+                success: function (data) {
+
+                    for (var i = data.length - 1; i >= 0; i--) {
+                        var circolareBox = $('<div class="grid-item circolare-box"></div>');
+                        circolareBox.append('<p>' + data[i].titolo + '</p><p>' + data[i].descrizione + '</p><p>' + data[i].data + '</p><p>' + data[i].tipo + '</p>');
+                        circolareBox.append('<button id="btn-modifica" class="btn-modifica" data-id="' + data[i].id + '" data-titolo="' + data[i].titolo + '" data-giorno="' + data[i].data + '" data-descrizione="' + data[i].descrizione + data[i].tipo + '">Modifica</button>');
+                        circolareBox.append('<button id="btn-elimina" class="btn-elimina" data-id="' + data[i].id + '" data-titolo="' + data[i].titolo + '" data-giorno="' + data[i].data + '" data-descrizione="' + data[i].descrizione + data[i].tipo + '">Elimina</button>');
+                        $('.grid').append(circolareBox);
+                    }
+                }
+            });
+        }
+
+
+    </script>
+
+    <header>
+        <h1>Circolari</h1>
+    </header>
+    <main>
+        <button type="button" id="caricaCircolareBtn">Carica Circolare</button>
+        <div class="grid"></div>
+    </main>
+</body>
+</html>

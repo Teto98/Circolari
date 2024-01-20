@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circolari</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4caf50;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            border: 2px solid #4caf50;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #caricaUtenteBtn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #2196f3;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        main {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-item {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .utente-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .btn-modifica,
+        .btn-elimina {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        
+        .change-account-button {
+            position: absolute;
+            right: 20px;
+            top: 50px; /* Adjust this value as needed */
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha512-S5PZ9GxJZO16tT9r3WJp/Safn31eu8uWrzglMahDT4dsmgqWonRY9grk3j+3tfuPr9WJNsfooOR7Gi7HL5W2jw==" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<button class="change-account-button" onclick="window.location.href='http://localhost:8080/'">Cambia Account</button>
+	
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            caricaUtente();
+
+            $("#caricaUtenteBtn").on('click', function () {
+                var nome = prompt("Inserisci il nome dell'utente");
+                var cognome = prompt("Inserisci il cognome dell'utente");
+                var email = prompt("Inserisci l'email dell'utente");
+                var password = prompt("Inserisci la password dell'utente");
+                var tipo = prompt("Inserisci il tipo dell'utente");
+
+                var utente = {
+                    nome: nome,
+                    cognome: cognome,
+                    email: email,
+                    password: password,
+                    tipo: tipo
+                };
+
+                $.ajax({
+                    url: '/amministratore/api/utente',
+                    method: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(utente),
+                    success: function (data) {
+                        caricaUtente();
+                    },
+
+                });
+            });
+        });
+
+            
+        $(document).on('click', '#btn-modifica', function () {
+            var id = $(this).data('id');
+            var nome = $(this).data('nome');
+            var cognome = $(this).data('cognome');
+            var email = $(this).data('email');
+            var password = $(this).data('password');
+            var tipo = $(this).data('tipo');
+
+            var nuovoNome = prompt('Modifica il nome', nome);
+            var nuovoCognome = prompt('Modifica il cognome', cognome);
+            var nuovaEmail = prompt("Modifica l'email", email);
+            var nuovaPassword = prompt('Modifica la password', password);
+            var nuovoTipo = prompt('Modifica il tipo', tipo);
+
+            var utente = {
+                nome: nuovoNome,
+                cognome: nuovoCognome,
+                email: nuovaEmail,
+                password: nuovaPassword,
+                tipo: nuovoTipo
+            };
+
+            $.ajax({
+                url: '/amministratore/api/utente/' + id,
+                method: 'put',
+                contentType: 'application/json',
+                data: JSON.stringify(utente),
+                success: function (data) {
+                    caricaUtente();
+                },
+            });
+        });
+        
+        $(document).on('click', '#btn-elimina', function() {
+						
+						var elementToRemove = $(this).parent();
+						var id = $(this).data('id');
+						
+						$.ajax({
+							url : '/amministratore/api/utente/' + id,
+							method : 'delete',
+							success : function(data) {
+								
+								elementToRemove.remove();
+									
+							}
+						});            		
+					});
+
+        function caricaUtente() {
+            $('.grid').html('');
+            $.ajax({
+                url: '/amministratore/api/utente',
+                method: 'get',
+                success: function (data) {
+
+                    for (var i = data.length - 1; i >= 0; i--) {
+                        var utenteBox = $('<div class="grid-item utente-box"></div>');
+                        utenteBox.append('<p>' + data[i].nome + '</p><p>' + data[i].cognome + '</p><p>' + data[i].email + '</p><p>' + data[i].password + '</p><p>' + data[i].tipo + '</p>');
+                        utenteBox.append('<button id="btn-modifica" class="btn-modifica" data-id="' + data[i].id + '" data-nome="' + data[i].nome + '" data-email="' + data[i].email + '" data-cognome="' + data[i].cognome + '" data-password="' + data[i].password+ '" data-tipo="' + data[i].tipo + '">Modifica</button>');
+                        utenteBox.append('<button id="btn-elimina" class="btn-elimina" data-id="' + data[i].id + '" data-nome="' + data[i].nome + '" data-email="' + data[i].email + '" data-cognome="' + data[i].cognome + '" data-password="' + data[i].password+ '" data-tipo="' + data[i].tipo + '">Elimina</button>');
+                        $('.grid').append(utenteBox);
+                    }
+                }
+            });
+        }
+
+
+    </script>
+
+    <header>
+        <h1>Utenti</h1>
+    </header>
+    <main>
+        <button type="button" id="caricaUtenteBtn">Carica Utente</button>
+        <div class="grid"></div>
+    </main>
+</body>
+</html>
