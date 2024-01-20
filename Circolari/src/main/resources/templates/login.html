@@ -57,7 +57,7 @@
 
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
-
+<!--
         <label for="userType">Tipo utente:</label>
         <select id="userType" name="userType">
         	<option value="amministratore">Amministratore</option>
@@ -65,7 +65,7 @@
             <option value="studente">Studente</option>
             <option value="docente">Docente</option>
         </select>
-
+  -->
         <button type="button" id="accedi">Accedi</button>
     </form>
 </div>
@@ -77,7 +77,7 @@
 		      $("#accedi").on('click', function () {
                  var email = document.getElementById("email").value;
 		   var password = document.getElementById("password").value;
-		   var userType = document.getElementById("userType").value;
+		   var userType;
 		   var datiTrovati=false;
 		   
             $.ajax({
@@ -85,12 +85,13 @@
                 method: 'get',
                 success: function (data) {					
                     for (var i = data.length - 1; i >= 0; i--) {                     
-                        if(data[i].email===email && data[i].password===password && data[i].tipo===userType){
-							datiTrovati=true;							
+                        if(data[i].email===email && data[i].password===password){
+							datiTrovati=true;	
+							userType=data[i].tipo;
 						} 						                   
                     }
                     if(datiTrovati){
-						redirectToPage();
+						redirectToPage(userType);
 					}
 					else{
 						alert("Dati Errati!");
@@ -100,8 +101,7 @@
             });
 		
 
-        function redirectToPage() {
-        var userType = document.getElementById("userType").value;
+        function redirectToPage(userType) {
         if (userType === "amministratore") {
         	window.location.href = "amministratore";
         } else if (userType === "personale_presidenza") {
